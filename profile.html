@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Asahina Mafuyu Web">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="icon" href="favicon.ico">
+        <title>Asahina Mafuyu</title>
+
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
+
+            body {
+                background-color: #8889CC;
+                color: #333;
+                min-height: 100vh;
+                padding: 20px;
+                position: relative;
+                overflow-x: hidden;
+                transition: opacity 0.5s ease;
+            }
+
+            .background-container {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100vh;
+                overflow: hidden;
+                z-index: -1;
+            }
+
+            .background-image {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-image: url('./images/Walls_Closing_In_T.jpg');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                filter: brightness(0.3);
+                transform: scale(1);
+                transition: transform 10s ease-in-out;
+            }
+
+            .zoom-in {
+                transform: scale(1.2);
+            }
+
+            .zoom-out {
+                transform: scale(1);
+            }
+
+            .loading-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: #13181d;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 9999;
+                opacity: 1;
+                visibility: visible;
+                transition: opacity 0.5s ease, visibility 0.5s ease;
+            }
+
+            .loading-overlay.hidden {
+                opacity: 0;
+                visibility: hidden;
+            }
+
+            body.loading {
+                overflow: hidden;
+                height: 100vh;
+            }
+
+            body.loaded {
+                opacity: 1;
+            }
+
+            .spinner {
+                width: 32px;
+                height: 32px;
+                border: 4px solid #8889CC;
+                border-top: 4px solid transparent;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+            }
+
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+
+            .profile-image {
+                flex: 0 0 40%;
+                max-width: 400px;
+                transition: transform 0.1s ease-out;
+                transform-style: preserve-3d;
+                will-change: transform;
+                perspective: 1000px;
+            }
+
+            .profile-image img {
+                width: 65%;
+                height: auto;
+                border-radius: 5px;
+                object-fit: cover;
+                margin-left: 65px;
+                margin-top: 25px;
+                transition: transform 0.1s ease-out;
+                transform-style: preserve-3d;
+                will-change: transform;
+            }
+
+            .profile-card {
+                width: 90%;
+                max-width: 1400px;
+                background-color: rgba(136, 137, 204, 0.9);
+                border-radius: 10px;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+                padding: 50px;
+                position: absolute;
+                right: 5%;
+                top: 50%;
+                transform: translateY(-50%);
+                transition: transform 0.1s ease-out;
+                transform-style: preserve-3d;
+                will-change: transform;
+            }
+
+            .profile-header {
+                margin-bottom: 30px;
+                text-align: center;
+                position: relative;
+                padding-bottom: 20px;
+            }
+
+            .profile-header::after {
+                content: "";
+                position: absolute;
+                bottom: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 80%;
+                height: 1px;
+                background-color: rgba(255,255,255,0.3);
+            }
+
+            .profile-header h1 {
+                font-size: 3rem;
+                color: white;
+                margin-bottom: 10px;
+                letter-spacing: 1px;
+            }
+
+            .profile-header .subtitle {
+                font-size: 1.2rem;
+                color: white;
+                font-weight: 500;
+                opacity: 0.9;
+            }
+
+            .profile-content {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 30px;
+            }
+
+            .profile-section p {
+                margin-bottom: 15px;
+                font-size: 1.1rem;
+                line-height: 1.7;
+                color: white;
+            }
+
+            .profile-section strong {
+                color: white;
+                font-weight: 600;
+            }
+
+            .profile-bio {
+                grid-column: span 2;
+                margin-top: 25px;
+                padding: 25px;
+                border-radius: 5px;
+                font-size: 1.1rem;
+                line-height: 1.8;
+                border-left: 4px solid #555570;
+                color: rgba(255, 255, 255, 0.8);
+                font-style: italic;
+            }
+
+            .signature {
+                text-align: left;
+                font-style: italic;
+                margin-top: 15px;
+                font-size: 1rem;
+                color: rgba(255, 255, 255, 0.8);
+            }
+
+            .back-btn {
+                position: fixed;
+                top: 30px;
+                left: 30px;
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                background-color: rgba(136, 137, 204, 0.9);
+                color: white;
+                border: none;
+                font-size: 25px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                z-index: 1000;
+                transform: translateY(20px); 
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                opacity: 0.9;
+            }
+            
+            .back-btn:hover {
+                background-color: rgba(136, 137, 204, 1);
+                opacity: 1;
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+                transform: translateY(0) scale(1.1);
+            }
+
+            .back-btn i {
+                font-size: 15px;
+                line-height: 1;
+            }
+
+            @keyframes slideIn {
+                from { transform: translateY(-20px); opacity: 0; }
+                to { transform: translateY(20px); opacity: 0.9; }
+            }
+
+            .back-btn {
+                animation: slideIn 0.5s ease-out forwards;
+            }
+
+            @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                background-color: #13181d;
+            }
+
+            .loading-overlay {
+                background-color: #13181d;
+            }
+
+            .background-container {
+                height: 100vh;
+                position: fixed;
+            }
+
+            .background-image {
+                animation: none;
+            }
+
+            .profile-card {
+                position: relative;
+                width: 100%;
+                max-width: 100%;
+                top: 0;
+                right: 0;
+                transform: none;
+                margin: 20px 0;
+                padding: 30px 20px;
+                background-color: rgba(136, 137, 204, 0.95);
+            }
+
+            .profile-image {
+                display: flex;
+                justify-content: center;
+                margin: 0 auto;
+                max-width: 100%;
+            }
+
+            .profile-image img {
+                width: 60%;
+                max-width: 250px;
+                margin: 20px auto 0;
+                border-radius: 8px;
+            }
+
+            .profile-header h1 {
+                font-size: 2rem;
+                margin-bottom: 5px;
+            }
+
+            .profile-header .subtitle {
+                font-size: 1rem;
+            }
+
+            .profile-section p {
+                font-size: 0.95rem;
+                line-height: 1.6;
+            }
+
+            .profile-bio {
+                font-size: 0.95rem;
+                padding: 15px;
+                margin-top: 15px;
+            }
+
+            .profile-content {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .back-btn {
+                top: 15px;
+                left: 15px;
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+
+            .profile-card,
+            .profile-image img {
+                transform: none !important;
+                will-change: auto;
+            }
+            }
+
+            @media (max-width: 480px) {
+            .profile-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .profile-image img {
+                width: 70%;
+            }
+
+            .profile-card {
+                padding: 25px 15px;
+            }
+
+            .profile-section p {
+                font-size: 0.9rem;
+            }
+
+            .back-btn {
+                top: 10px;
+                left: 10px;
+            }
+            }
+
+            @media (hover: none) {
+            .back-btn:hover {
+                transform: none !important;
+                background-color: rgba(136, 137, 204, 0.9);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+        }
+        </style>
+    </head>
+
+    <body>
+        <div class="loading-overlay">
+            <div class="spinner"></div>
+        </div>
+        
+        <div class="background-container">
+            <div class="background-image"></div>
+        </div>
+
+        <div class="profile-image">
+            <img src="images/Mafuyu V2.png" alt="Asahina Mafuyu">
+        </div>
+
+        <div class="profile-card">
+            <div class="profile-header">
+                <h1>Asahina Mafuyu</h1>
+                <div class="subtitle">CV. Tanabe Rui</div>
+            </div>
+            
+            <div class="profile-content">
+                <div class="profile-section">
+                    <p><strong>Gender:</strong> Female</p>
+                    <p><strong>Height:</strong> 162 cm</p>
+                    <p><strong>Birthday:</strong> January 27th</p>
+                    <p><strong>School:</strong> Miyamasuzaka Girls Academy (Class 3-B)</p>
+                    <p><strong>Hobby:</strong> Aquarium</p>
+                    <p><strong>Specialty:</strong> Speaking English</p>
+                    <p><strong>Dislikes:</strong> Not Sure</p>
+                </div>
+
+                <div class="profile-section">
+                    
+                    <p><strong>Favorite Food:</strong> Mom's home cooking</p>
+                    <p><strong>Least Favorite Food:</strong> Not Sure</p>
+                    
+                </div>
+
+                <div class="profile-bio">
+                    <p>
+                    The lyricist of Nightcord at 25:00, Mafuyu is good-natured, reliable, considerate and academically talented. 
+                    She's the only member of the group who attends daytime classes.</p>
+                    She seems to have no flaws whatsoever... or is she just putting on a facade?
+                    <div class="signature">— Profile</div> 
+                </div>
+            </div>
+        </div>
+        <script>
+            window.addEventListener('load', () => {
+            const overlay = document.querySelector('.loading-overlay');
+            overlay.classList.add('hidden');
+            document.body.classList.remove('loading');
+            document.body.classList.add('loaded');
+        });
+
+        document.body.classList.add('loading');
+
+        window.addEventListener('load', () => {
+            const overlay = document.querySelector('.loading-overlay');
+            overlay.classList.add('hidden');
+            document.body.classList.remove('loading');
+            document.body.classList.add('loaded');
+        });
+
+            const background = document.querySelector('.background-image');
+            const zoomInDuration = 10000;
+            const pauseDuration = 5000;
+            const zoomOutDuration = 10000;
+            const initialDelay = 1000;
+            
+            function startBackgroundAnimation() {
+                setTimeout(() => {
+                    background.classList.add('zoom-in');
+                    background.classList.remove('zoom-out');
+                    
+                    setTimeout(() => {
+                        setTimeout(() => {
+                            background.classList.remove('zoom-in');
+                            background.classList.add('zoom-out');
+                            
+                            setTimeout(() => {
+                                startBackgroundAnimation();
+                            }, zoomOutDuration);
+                        }, pauseDuration);
+                    }, zoomInDuration);
+                }, initialDelay);
+            }
+            
+            startBackgroundAnimation();
+
+            const profileCard = document.querySelector('.profile-card');
+            const profileImage = document.querySelector('.profile-image img');
+            
+            const cardTiltAmount = 30;
+            const imageTiltAmount = 25;
+            const imageOffsetAmount = 40;
+            
+            document.addEventListener('mousemove', (e) => {
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            const tiltX = (y - 0.5) * -1 * cardTiltAmount;
+            const tiltY = (x - 0.5) * cardTiltAmount;
+            
+            profileCard.style.transform = `
+                translateY(-50%)
+                rotateX(${tiltX}deg)
+                rotateY(${tiltY}deg)
+            `;
+            
+            profileImage.style.transform = `
+                translateX(${(x - 0.5) * imageOffsetAmount}px)
+                translateY(${(y - 0.5) * imageOffsetAmount}px)
+                rotateX(${tiltX * 0.7}deg)
+                rotateY(${tiltY * 0.7}deg)
+            `;
+        });
+        
+        document.addEventListener('mouseleave', () => {
+            profileCard.style.transform = 'translateY(-50%)';
+            profileImage.style.transform = 'translateX(0) translateY(0)';
+        });
+        </script>
+
+    <button class="back-btn" title="Go back">
+        <i class="fa-solid fa-angle-left"></i>
+    </button>
+    <script>
+        const backBtn = document.querySelector('.back-btn');
+    
+        backBtn.addEventListener('click', () => {
+            document.body.style.transition = 'opacity 0.3s ease, background-color 0.3s ease';
+            document.body.style.opacity = '0';
+            document.body.style.backgroundColor = '#13181d';
+    
+            setTimeout(() => {
+                window.history.back();
+            }, 300);
+        });
+    </script>
+    </body>
+</html>
